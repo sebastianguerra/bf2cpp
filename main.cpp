@@ -14,79 +14,84 @@ int main() {
     ifstream file;
     file.open("main.bf");
     if(!file.is_open()){
-        cerr << "Could not open te file" << endl;
+        cerr << "Could not open the file" << endl;
         return EXIT_FAILURE;
     }
     while(file.get(byte)){
-        if(byte == ','|| byte == '.' || byte == '<' || byte == '>' || byte == '+' || byte == '-' || byte == '[' || byte == ']')
-        bytes.push_back(byte);
+        if(
+            byte == ',' || byte == '.' || 
+            byte == '<' || byte == '>' || 
+            byte == '+' || byte == '-' || 
+            byte == '[' || byte == ']'
+        )
+            bytes.push_back(byte);
     }
     file.close();
 
-    ofstream program;
-    program.open("bf2cpp.cpp");
-    if(!program.is_open()){
-        cerr << "Could not open te file" << endl;
+    ofstream output;
+    output.open("bf2cpp.cpp"); // TODO pasar el nombre por argumento
+    if(!output.is_open()){
+        cerr << "Could not open the file" << endl;
         return EXIT_FAILURE;
     }
-    program << "#include <iostream>" << endl;
-    program << "using namespace std;" << endl;
-    program << endl;
-    program << "int main() {" << endl;
-    program << "    char a[1024]; //Array de 1 kb donde cada elemento es un byte" << endl;
-    program << "    for(int i = 0; i<1024; i++)" << endl;
-    program << "        a[i] = 0;" << endl;
-    program << "    int p = 0;" << endl;
-    program << endl;
+    output << "#include <iostream>" << endl;
+    output << "using namespace std;" << endl;
+    output << endl;
+    output << "int main() {" << endl;
+    output << "    char a[1024]; //Array de 1 kb donde cada elemento es un byte" << endl;
+    output << "    for(int i = 0; i<1024; i++)" << endl;
+    output << "        a[i] = 0;" << endl;
+    output << "    int p = 0;" << endl;
+    output << endl;
 
     int ident = 0;
     for( const auto &c : bytes ){
         //std::cout << c << ": " << ident << endl;
-        program << '\t';
+        output << '\t';
         switch(c){
             case '[':
-                for(int i = 0; i < ident; i++) program << '\t';
-                program << "while(a[p] != 0) {" << endl;
+                for(int i = 0; i < ident; i++) output << '\t';
+                output << "while(a[p] != 0) {" << endl;
                 ident++;
                 break;
             case ']':
                 ident--;
-                for(int i = 0; i < ident; i++) program << '\t';
-                program << "}" << endl;
+                for(int i = 0; i < ident; i++) output << '\t';
+                output << "}" << endl;
                 break;
             case ',':
-                for(int i = 0; i < ident; i++) program << '\t';
-                program << "cin >> a[p];" << endl;
+                for(int i = 0; i < ident; i++) output << '\t';
+                output << "cin >> a[p];" << endl;
                 break;
             case '.':
-                for(int i = 0; i < ident; i++) program << '\t';
-                program << "cout << a[p];" << endl;
+                for(int i = 0; i < ident; i++) output << '\t';
+                output << "cout << a[p];" << endl;
                 break;
             case '+':
-                for(int i = 0; i < ident; i++) program << '\t';
-                program << "a[p]++;" << endl;
+                for(int i = 0; i < ident; i++) output << '\t';
+                output << "a[p]++;" << endl;
                 break;
             case '-':
-                for(int i = 0; i < ident; i++) program << '\t';
-                program << "a[p]--;" << endl;
+                for(int i = 0; i < ident; i++) output << '\t';
+                output << "a[p]--;" << endl;
                 break;
             case '<':
-                for(int i = 0; i < ident; i++) program << '\t';
-                program << "p--;" << endl;
+                for(int i = 0; i < ident; i++) output << '\t';
+                output << "p--;" << endl;
                 break;
             case '>':
-                for(int i = 0; i < ident; i++) program << '\t';
-                program << "p++;" << endl;
+                for(int i = 0; i < ident; i++) output << '\t';
+                output << "p++;" << endl;
                 break;
             default:
                 break;
         }
     }
 
-    program << "    return 0;" << endl;
-    program << "}" << endl;
-    program << endl;
-    program.close();
+    output << "    return 0;" << endl;
+    output << "}" << endl;
+    output << endl;
+    output.close();
     return 0;
 
 

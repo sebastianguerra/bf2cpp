@@ -13,9 +13,11 @@ int main(int argc, char* argv[]) {
             decOutput = false,      /*  Salida en formato decimal.           */
             pointerOF = false,      /* OverFlow del puntero (Si al superar el
                                         MemorySize vuelve al 0).             */
-         memoryViewer = false;      /* Permitir que se vea la memoria y las
+         memoryViewer = false,      /* Permitir que se vea la memoria y las
                                         operaciones realizadas.              */
+            debugMode = false;
     string bfFilename = "main.bf";  /* Nombre del archivo Brainfuck.         */
+    string separator = " ";
     int    memorySize = 1024;       /* Tamano de la memoria.                 */
 
     bool expectingSize = false;
@@ -61,6 +63,8 @@ int main(int argc, char* argv[]) {
                     case 'v':
                         memoryViewer = true;
                         break;
+                    case 'd':
+                        debugMode = true;
                     default:
                         break;
                     }
@@ -71,12 +75,12 @@ int main(int argc, char* argv[]) {
             bfFilename = argv[i];
         }
     }
-    cout << "Entrada Decimal: " << decInput << endl;
-    cout << "Salida Decimal: " << decOutput << endl;
-    cout << "MemorySize: " << memorySize << endl;
-    cout << "Pointer overflow: " << pointerOF << endl;
-    cout << "Memory Viewer: " << memoryViewer << endl;
-    cout << "Nombre archivo: " << bfFilename << endl;
+    // cout << "Entrada Decimal: " << decInput << endl;
+    // cout << "Salida Decimal: " << decOutput << endl;
+    // cout << "MemorySize: " << memorySize << endl;
+    // cout << "Pointer overflow: " << pointerOF << endl;
+    // cout << "Memory Viewer: " << memoryViewer << endl;
+    // cout << "Nombre archivo: " << bfFilename << endl;
 
     vector<char> bytes;
     char byte = 0;
@@ -115,49 +119,68 @@ int main(int argc, char* argv[]) {
     output << endl;
 
     int ident = 0;
+    int iter = 0;
     for( const auto &c : bytes ){
         //cout << c << ": " << ident << endl;
+        if(debugMode) output << "\tcout << \"DEBUG: STEP "<<iter++<<": " << c << "\"<<endl;";
         output << '\t';
         switch(c){
             case '[':
                 for(int i = 0; i < ident; i++) output << '\t';
-                output << "while(a[p] != 0) {" << endl;
+                output << "while(a[p] != 0) {";
+                output << endl;
                 ident++;
                 break;
             case ']':
                 ident--;
                 for(int i = 0; i < ident; i++) output << '\t';
-                output << "}" << endl;
+                output << "}";
+                output << endl;
                 break;
             case ',':
                 for(int i = 0; i < ident; i++) output << '\t';
-                output << "cin >> a[p];" << endl;
+                output << "cin >> a[p];";
+                output << endl;
                 break;
             case '.':
                 for(int i = 0; i < ident; i++) output << '\t';
-                output << "cout << a[p];" << endl;
+                if (decOutput){
+                    output << "cout << (int) a[p] << \""<<separator<<"\";";
+                } else {
+                    output << "cout << a[p] << \""<<separator<<"\";";
+                }
+                output << endl;
                 break;
             case '+':
                 for(int i = 0; i < ident; i++) output << '\t';
-                output << "a[p]++;" << endl;
+                output << "a[p]++;";
+                if(debugMode) output<< "cout <<\"DEBUG: VALUE: \"<< (int)a[p]<<endl; ";
+                output << endl;
                 break;
             case '-':
                 for(int i = 0; i < ident; i++) output << '\t';
-                output << "a[p]--;" << endl;
+                output << "a[p]--;";
+                if(debugMode) output<< "cout <<\"DEBUG: VALUE: \"<< (int)a[p]<<endl; ";
+                output << endl;
                 break;
             case '<':
                 for(int i = 0; i < ident; i++) output << '\t';
-                output << "p--;" << endl;
+                output << "p--;";
+                if(debugMode) output<< "cout <<\"DEBUG: POINT: \"<< p<<endl; ";
+                output << endl;
                 break;
             case '>':
                 for(int i = 0; i < ident; i++) output << '\t';
-                output << "p++;" << endl;
+                output << "p++;";
+                if(debugMode) output<< "cout <<\"DEBUG: POINT: \"<< p<<endl; ";
+                output << endl;
                 break;
             default:
                 break;
         }
     }
 
+    output << "    cout << endl;" << endl;
     output << "    return 0;" << endl;
     output << "}" << endl;
     output << endl;
